@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MPI Aplikasi Pengolah Kata - Informatika Kelas X SMK</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:linear-gradient(160deg,#dbeafe,#eff6ff 50%,#bfdbfe);min-height:100vh;font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;color:#0f172a;margin:0}
+.scr{display:none;min-height:100vh;padding:4.5rem 1rem 3.5rem;max-width:56rem;margin:auto}
+.scr.on{display:block;animation:in .45s ease}
+@keyframes in{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.3) rotate(-6deg)}70%{transform:scale(1.08)}100%{opacity:1;transform:none}}
+@keyframes flo{50%{transform:translateY(-10px)}}
+.pop{animation:pop .9s cubic-bezier(.3,1.4,.5,1) both}
+.flo{animation:flo 2.4s ease-in-out infinite}
+.btn{background:#1d4ed8;color:#fff;font-weight:700;border-radius:.9rem;padding:.7rem 1.3rem;box-shadow:0 4px 0 #1e3a8a;transition:transform .15s,background .15s;cursor:pointer;border:0;font-size:1rem}
+.btn:hover{background:#2563eb;transform:translateY(-3px)}
+.btn:active{transform:translateY(2px)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn.alt{background:#fff;color:#1d4ed8;box-shadow:0 4px 0 #93c5fd}
+.btn.alt:hover{background:#eff6ff}
+.btn.ok{background:#16a34a;color:#fff;box-shadow:0 4px 0 #166534}
+.btn.no{background:#dc2626;color:#fff;box-shadow:0 4px 0 #991b1b}
+.btn.sel{background:#fde047;color:#1e3a8a;box-shadow:0 4px 0 #ca8a04}
+.card{background:#fff;border-radius:1.2rem;padding:1.2rem;box-shadow:0 6px 20px #1e3a8a22}
+.dz{display:inline-block;min-width:6rem;border-bottom:3px dashed #1d4ed8;text-align:center;font-weight:700;color:#1d4ed8;padding:0 .4rem}
+.bar{height:.6rem;background:#bfdbfe;border-radius:1rem;overflow:hidden}.bar i{display:block;height:100%;background:#1d4ed8;transition:width .4s}
+input[type=text]{border:3px solid #93c5fd;border-radius:.9rem;padding:.8rem 1rem;font-size:1.1rem;width:100%;outline:none;background:#fff}
+input[type=text]:focus{border-color:#1d4ed8}
+#cert{border:10px double #1d4ed8;background:#fff;text-align:center;padding:2rem 1rem}
+@media print{body *{visibility:hidden}#cert,#cert *{visibility:visible}#cert{position:absolute;left:0;top:0;width:100%}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+
+<button id="home" class="btn hidden fixed top-3 left-3 z-50" style="padding:.5rem 1rem">🏠 HOME</button>
+<div class="fixed bottom-0 inset-x-0 text-center text-xs py-1 bg-blue-900 text-blue-100 z-40">Pengembang: Aspiah, S.Kom. · Tahun 2026</div>
+
+<!-- SPLASH -->
+<section id="splash" class="scr on text-center flex flex-col items-center justify-center" style="padding-top:2rem">
+  <div class="text-7xl flo">📝</div>
+  <p class="pop text-blue-700 font-bold text-lg mt-2" style="animation-delay:.1s">Media Pembelajaran Interaktif · Informatika Kelas X SMK</p>
+  <h1 class="pop text-5xl sm:text-7xl font-black text-blue-800 leading-tight mt-3" style="animation-delay:.3s">APLIKASI<br>PENGOLAH KATA</h1>
+  <p class="pop text-blue-900 mt-3" style="animation-delay:.6s">Belajar Microsoft Word dengan seru!</p>
+  <div class="pop card w-full max-w-sm mt-6" style="animation-delay:.9s">
+    <label for="nama" class="font-bold text-blue-800 block mb-2 text-left">Nama siswa</label>
+    <input id="nama" type="text" maxlength="40" placeholder="Ketik namamu di sini" autocomplete="off">
+    <label for="kelas" class="font-bold text-blue-800 block mb-2 mt-3 text-left">Kelas</label>
+    <input id="kelas" type="text" maxlength="20" placeholder="Contoh: X TKJ 1" autocomplete="off">
+    <p id="namaErr" class="text-red-600 text-sm mt-1 text-left"></p>
+    <button id="mulai" class="btn w-full mt-3 text-xl">MULAI</button>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu" class="scr">
+  <h2 class="text-3xl font-black text-blue-800 text-center">Menu Utama</h2>
+  <p class="text-center mb-5">Halo, <b id="hai"></b>! Pilih menu belajar.</p>
+  <div class="grid grid-cols-2 gap-4">
+    <button class="btn py-8 text-xl" data-go="beranda">🏡<br>BERANDA</button>
+    <button class="btn py-8 text-xl" data-go="materi">📚<br>MATERI</button>
+    <button class="btn py-8 text-xl" data-go="sim">🧪<br>SIMULASI</button>
+    <button class="btn py-8 text-xl" data-go="kuis">🎮<br>KUIS</button>
+  </div>
+  <div class="card mt-6">
+    <h3 class="font-bold text-blue-800 mb-2">⚙️ Pengaturan Suara</h3>
+    <div class="flex items-center gap-3 flex-wrap">
+      <button id="musik" class="btn alt">🎵 Musik: ON</button>
+      <label class="flex items-center gap-2 flex-1" style="min-width:12rem">🔊
+        <input id="vol" type="range" min="0" max="100" value="60" class="w-full" aria-label="Volume">
+      </label>
+    </div>
+  </div>
+</section>
+
+<!-- BERANDA -->
+<section id="beranda" class="scr">
+  <h2 class="text-3xl font-black text-blue-800 mb-3">Beranda</h2>
+  <div class="card mb-4"><h3 class="font-bold text-blue-800">Tentang Media Ini</h3>
+    <p class="mt-1">Media ini membantumu mengenal dan mengoperasikan aplikasi pengolah kata <b>Microsoft Word</b> melalui materi interaktif, simulasi, dan kuis permainan.</p></div>
+  <div class="card mb-4"><h3 class="font-bold text-blue-800">Tujuan Pembelajaran</h3>
+    <p class="mt-1">Siswa dapat memahami dan mengoperasikan aplikasi pengolah kata (Microsoft Word) dengan baik.</p></div>
+  <div class="card"><h3 class="font-bold text-blue-800">Cara Belajar</h3>
+    <ol class="list-decimal ml-5 mt-1 space-y-1"><li>Baca <b>Materi</b> sampai paham.</li><li>Uji dirimu di <b>Simulasi</b> (10 soal) dan dapatkan sertifikat.</li><li>Main <b>Kuis</b> dan selesaikan semua level.</li></ol>
+    <p class="mt-3 text-sm text-blue-900">Pengembang: Aspiah, S.Kom. · 2026</p></div>
+</section>
+
+<!-- MATERI -->
+<section id="materi" class="scr">
+  <h2 class="text-3xl font-black text-blue-800 mb-3">Materi</h2>
+  <div id="tabs" class="flex flex-wrap gap-2 mb-4"></div>
+  <div id="mbody" class="space-y-3"></div>
+  <p class="text-sm mt-3 text-blue-900">Ketuk setiap judul untuk membuka penjelasannya.</p>
+</section>
+
+<!-- SIMULASI -->
+<section id="sim" class="scr">
+  <h2 class="text-3xl font-black text-blue-800 mb-3">Simulasi</h2>
+  <div id="simIntro" class="card text-center">
+    <p class="text-lg">10 soal uji pemahaman: <b>Pilihan Ganda</b>, <b>Drag the Word</b>, dan <b>Mark the Word</b>.</p>
+    <p class="mt-2">Setelah selesai, nilaimu terkirim ke spreadsheet dan kamu mendapat sertifikat.</p>
+    <button id="simGo" class="btn mt-4 text-lg">MULAI SIMULASI</button>
+  </div>
+  <div id="simBox" class="hidden"></div>
+</section>
+
+<!-- SERTIFIKAT -->
+<section id="cert-s" class="scr">
+  <div id="cert">
+    <div class="text-5xl">🏆</div>
+    <h2 class="text-3xl font-black text-blue-800 mt-1">SERTIFIKAT PENCAPAIAN</h2>
+    <p class="mt-3">Diberikan kepada</p>
+    <p id="cNama" class="text-4xl font-black text-blue-700 my-2 break-words"></p>
+    <p id="cKelas" class="font-bold text-blue-800"></p>
+    <p>yang telah menyelesaikan Simulasi Aplikasi Pengolah Kata (Microsoft Word)</p>
+    <p class="mt-2">Informatika · Kelas X SMK</p>
+    <p class="text-5xl font-black text-blue-800 mt-3"><span id="cSkor"></span></p>
+    <p id="cPred" class="font-bold text-blue-700"></p>
+    <p id="cTgl" class="mt-3 text-sm"></p>
+    <p class="text-sm mt-1">Pengembang: Aspiah, S.Kom. · 2026</p>
+  </div>
+  <div class="flex gap-3 justify-center mt-4 flex-wrap">
+    <button id="cetak" class="btn">🖨️ Cetak Sertifikat</button>
+    <button class="btn alt" data-go="menu">Menu Utama</button>
+  </div>
+  <p id="kirimInfo" class="text-center text-sm mt-3"></p>
+</section>
+
+<!-- KUIS -->
+<section id="kuis" class="scr">
+  <h2 class="text-3xl font-black text-blue-800 mb-3">Kuis</h2>
+  <p class="mb-3">Pilih permainan. Setiap permainan punya 3 level yang makin sulit.</p>
+  <div id="glist" class="grid sm:grid-cols-2 gap-4"></div>
+</section>
+<section id="klv" class="scr"></section>
+<section id="kgame" class="scr"></section>
+
+<script>
+const $=i=>document.getElementById(i);
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let nama='';
+
+/* ---------- AUDIO (dibuat dengan Web Audio, tanpa file eksternal) ---------- */
+let ac,mg,sg,mOn=true,vol=.6,tm,mi=0;
+const mel=[523,587,659,784,659,587,523,392,440,523,587,659,587,523,440,392];
+function ctx(){if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();sg=ac.createGain();mg.connect(ac.destination);sg.connect(ac.destination);setVol()}if(ac.state==='suspended')ac.resume()}
+function setVol(){if(!ac)return;mg.gain.value=mOn?vol*.3:0;sg.gain.value=vol*.6}
+function tone(f,t,d,ty,g,v){const o=ac.createOscillator(),e=ac.createGain();o.type=ty;o.frequency.value=f;e.gain.setValueAtTime(v,t);e.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(e);e.connect(g);o.start(t);o.stop(t+d)}
+function sfx(k){if(!ac)return;const t=ac.currentTime,S={click:[[660,0,.08]],ok:[[523,0,.1],[784,.1,.18]],no:[[220,0,.2],[165,.15,.25]],win:[[523,0,.12],[659,.12,.12],[784,.24,.12],[1047,.36,.35]]};S[k].forEach(([f,o,d])=>tone(f,t+o,d,'square',sg,.4))}
+function startMusic(){if(tm)return;tm=setInterval(()=>{if(!ac||!mOn)return;const t=ac.currentTime;tone(mel[mi%16],t,.3,'triangle',mg,.8);if(mi%4===0)tone(mel[mi%16]/2,t,.6,'sine',mg,.6);mi++},330)}
+document.addEventListener('click',e=>{if(e.target.closest('.btn')){ctx();startMusic();sfx('click')}});
+$('musik').onclick=()=>{mOn=!mOn;$('musik').textContent='🎵 Musik: '+(mOn?'ON':'OFF');setVol()};
+$('vol').oninput=e=>{vol=e.target.value/100;setVol()};
+
+/* ---------- NAVIGASI ---------- */
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');$('home').classList.toggle('hidden',id==='splash');window.scrollTo(0,0)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)show(b.dataset.go)});
+$('home').onclick=()=>show('menu');
+let kelas='';
+$('mulai').onclick=()=>{const v=$('nama').value.trim(),k=$('kelas').value.trim();
+  if(!v){$('namaErr').textContent='Isi namamu dulu ya.';$('nama').focus();return}
+  if(!k){$('namaErr').textContent='Isi kelasmu dulu ya.';$('kelas').focus();return}
+  nama=v;kelas=k;$('hai').textContent=nama+' ('+kelas+')';show('menu')};
+$('nama').addEventListener('keydown',e=>{if(e.key==='Enter')$('kelas').focus()});
+$('kelas').addEventListener('keydown',e=>{if(e.key==='Enter')$('mulai').click()});
+
+/* ---------- MATERI ---------- */
+const M=[
+['Mengenal Word',[
+['Apa itu pengolah kata?','Aplikasi untuk membuat, menyunting, memformat, dan mencetak dokumen teks. Contohnya Microsoft Word, LibreOffice Writer, dan Google Docs.'],
+['Bagian antarmuka Word','Title Bar (nama file), Quick Access Toolbar, Ribbon (tab File, Home, Insert, Layout, References, Review, View), Ruler, area kerja, dan Status Bar.'],
+['Tab File','Berisi New (dokumen baru), Open (buka), Save/Save As (simpan), Print (cetak), dan Share. Format bawaan dokumen Word adalah .docx.']]],
+['Tab Home',[
+['Clipboard','Cut (Ctrl+X) memotong, Copy (Ctrl+C) menyalin, Paste (Ctrl+V) menempel teks.'],
+['Font','Bold/tebal (Ctrl+B), Italic/miring (Ctrl+I), Underline/garis bawah (Ctrl+U). Kamu juga bisa mengubah jenis, ukuran, dan warna huruf.'],
+['Paragraph','Rata kiri (Ctrl+L), tengah (Ctrl+E), kanan (Ctrl+R), dan Justify (Ctrl+J). Ada juga Bullets, Numbering, dan spasi baris.']]],
+['Tab Insert',[
+['Table','Menyisipkan tabel berisi baris dan kolom untuk menyusun data.'],
+['Pictures & Shapes','Menyisipkan gambar, bentuk, dan kotak teks agar dokumen lebih menarik.'],
+['Header, Footer, Page Number','Header di bagian atas halaman, Footer di bagian bawah, dan Page Number untuk memberi nomor halaman otomatis.']]],
+['Tab Layout',[
+['Margins','Mengatur jarak tepi kertas. Margin Normal berukuran 2,54 cm di keempat sisi.'],
+['Orientation','Portrait (tegak) atau Landscape (mendatar).'],
+['Size & Columns','Size mengatur ukuran kertas (A4, Letter, F4). Columns membagi teks menjadi beberapa kolom.']]],
+['Simpan & Cetak',[
+['Menyimpan dokumen','Tekan Ctrl+S. Gunakan Save As untuk nama atau format lain, misalnya PDF.'],
+['Mencetak dokumen','Tekan Ctrl+P, pilih printer, jumlah salinan, dan rentang halaman, lalu klik Print.'],
+['Pintasan penting','Ctrl+Z (Undo), Ctrl+Y (Redo), Ctrl+A (pilih semua), Ctrl+F (cari), Ctrl+H (Find & Replace).']]]
+];
+let mt=0;
+function renderM(){
+  $('tabs').innerHTML=M.map((m,i)=>`<button class="btn ${i===mt?'':'alt'}" data-t="${i}">${m[0]}</button>`).join('');
+  $('mbody').innerHTML=M[mt][1].map(it=>`<div class="card"><button class="btn alt w-full text-left" data-r>▶ ${it[0]}</button><p class="hidden mt-3">${it[1]}</p></div>`).join('');
+}
+$('tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b){mt=+b.dataset.t;renderM()}};
+$('mbody').onclick=e=>{const b=e.target.closest('[data-r]');if(b){const p=b.nextElementSibling;p.classList.toggle('hidden');b.textContent=(p.classList.contains('hidden')?'▶ ':'▼ ')+b.textContent.slice(2)}};
+renderM();
+
+/* ---------- SIMULASI (10 soal) ---------- */
+const SIM_URL=''; // <-- tempel URL Web App Google Apps Script di sini (lihat petunjuk)
+const Q=[
+{t:'mcq',q:'Pintasan keyboard untuk menyalin teks adalah...',o:['Ctrl+V','Ctrl+C','Ctrl+X','Ctrl+Z'],a:'Ctrl+C'},
+{t:'mcq',q:'Ekstensi bawaan dokumen Microsoft Word adalah...',o:['.xlsx','.pptx','.docx','.txt'],a:'.docx'},
+{t:'mcq',q:'Tab untuk menyisipkan tabel adalah...',o:['Home','Insert','Review','View'],a:'Insert'},
+{t:'mcq',q:'Orientasi halaman yang mendatar disebut...',o:['Portrait','Landscape','Justify','Margin'],a:'Landscape'},
+{t:'drag',q:'Tombol ____ digunakan untuk menebalkan teks.',o:['Bold','Italic','Underline'],a:'Bold'},
+{t:'drag',q:'Fitur ____ mengatur jarak tepi kertas.',o:['Columns','Margins','Shapes'],a:'Margins'},
+{t:'drag',q:'Perataan teks kiri dan kanan sekaligus disebut ____.',o:['Center','Justify','Numbering'],a:'Justify'},
+{t:'mark',q:'Tandai kata yang merupakan aplikasi pengolah kata:',o:['Excel','PowerPoint','Word','Access'],a:'Word'},
+{t:'mark',q:'Tandai pintasan untuk menyimpan dokumen:',o:['Ctrl+P','Ctrl+N','Ctrl+S','Ctrl+O'],a:'Ctrl+S'},
+{t:'mark',q:'Tandai tab yang memuat fitur Spelling & Grammar:',o:['Home','Review','Layout','View'],a:'Review'}
+];
+let si=0,ss=0,lock=false;
+$('simGo').onclick=()=>{si=0;ss=0;$('simIntro').classList.add('hidden');$('simBox').classList.remove('hidden');simQ()};
+function simQ(){
+  lock=false;const q=Q[si],lbl={mcq:'Pilihan Ganda',drag:'Drag the Word (seret atau ketuk kata)',mark:'Mark the Word (ketuk kata yang benar)'}[q.t];
+  let body='';
+  if(q.t==='mcq')body=`<p class="text-lg font-bold mb-3">${q.q}</p><div class="grid sm:grid-cols-2 gap-3">${q.o.map(x=>`<button class="btn alt" data-a="${x}">${x}</button>`).join('')}</div>`;
+  if(q.t==='drag'){const[a,b]=q.q.split('____');body=`<p class="text-lg mb-4">${a}<span id="dz" class="dz">&nbsp;</span>${b}</p><div class="flex flex-wrap gap-2">${shuf(q.o).map(x=>`<button class="btn alt" draggable="true" data-a="${x}">${x}</button>`).join('')}</div>`}
+  if(q.t==='mark')body=`<p class="text-lg font-bold mb-3">${q.q}</p><div class="flex flex-wrap gap-2">${shuf(q.o).map(x=>`<button class="btn alt" data-a="${x}">${x}</button>`).join('')}</div>`;
+  $('simBox').innerHTML=`<div class="card"><div class="flex justify-between text-sm font-bold text-blue-800 mb-1"><span>Soal ${si+1} dari 10 · ${lbl}</span><span>Benar: ${ss}</span></div><div class="bar mb-4"><i style="width:${si*10}%"></i></div>${body}<p id="fb" class="mt-4 font-bold"></p><button id="nx" class="btn mt-3 hidden">${si<9?'LANJUT':'LIHAT HASIL'}</button></div>`;
+  $('nx').onclick=()=>{si++;si<10?simQ():simEnd()};
+}
+function simAns(v,btn){
+  if(lock)return;lock=true;const q=Q[si],ok=v===q.a;if(ok)ss++;sfx(ok?'ok':'no');
+  if(q.t==='drag')$('dz').textContent=v;
+  btn&&btn.classList.add(ok?'ok':'no');
+  document.querySelectorAll('#simBox [data-a]').forEach(b=>{if(b.dataset.a===q.a)b.classList.add('ok');b.draggable=false});
+  $('fb').textContent=ok?'✅ Benar!':'❌ Kurang tepat. Jawaban: '+q.a;$('fb').style.color=ok?'#16a34a':'#dc2626';$('nx').classList.remove('hidden');
+}
+$('simBox').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b)simAns(b.dataset.a,b)});
+$('simBox').addEventListener('dragstart',e=>{const b=e.target.closest('[data-a]');if(b)e.dataTransfer.setData('text/plain',b.dataset.a)});
+$('simBox').addEventListener('dragover',e=>{if(e.target.closest('#dz'))e.preventDefault()});
+$('simBox').addEventListener('drop',e=>{if(e.target.closest('#dz')){e.preventDefault();const v=e.dataTransfer.getData('text/plain');simAns(v,[...document.querySelectorAll('#simBox [data-a]')].find(b=>b.dataset.a===v))}});
+function simEnd(){
+  const sk=ss*10;sfx('win');
+  $('cNama').textContent=nama;$('cKelas').textContent='Kelas '+kelas;$('cSkor').textContent='Nilai: '+sk;
+  $('cPred').textContent=sk>=90?'Predikat: Sangat Baik':sk>=75?'Predikat: Baik':sk>=60?'Predikat: Cukup':'Predikat: Perlu Belajar Lagi';
+  $('cTgl').textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  $('simIntro').classList.remove('hidden');$('simBox').classList.add('hidden');
+  const rec={nama:nama,kelas:kelas,nilai:sk,benar:ss,waktu:new Date().toLocaleString('id-ID')};
+  try{const d=JSON.parse(localStorage.getItem('mpi_nilai')||'[]');d.push(rec);localStorage.setItem('mpi_nilai',JSON.stringify(d))}catch(e){}
+  kirim(rec);show('cert-s');
+}
+function kirim(rec){
+  const info=$('kirimInfo');
+  if(!SIM_URL){info.textContent='Nilai tersimpan di perangkat ini. (URL spreadsheet belum diisi oleh guru.)';return}
+  info.textContent='Mengirim nilai ke spreadsheet...';
+  fetch(SIM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(rec)})
+   .then(()=>info.textContent='✅ Nilai terkirim ke spreadsheet.').catch(()=>info.textContent='⚠️ Gagal mengirim. Periksa koneksi internet.');
+}
+$('cetak').onclick=()=>window.print();
+
+/* ---------- KUIS (4 permainan x 3 level) ---------- */
+const G=[
+{n:'Kilat Pilihan',ic:'⚡',d:'Pilih jawaban yang tepat.',t:'mcq',L:[
+ [['Pintasan untuk Paste?',['Ctrl+V','Ctrl+X','Ctrl+Z'],0],['Microsoft Word adalah aplikasi...',['Pengolah kata','Pengolah angka','Pengolah gambar'],0],['Ctrl+B membuat teks menjadi...',['Miring','Tebal','Bergaris bawah'],1]],
+ [['Tab untuk menyisipkan gambar?',['Home','Insert','Review'],1],['Ctrl+E mengatur teks menjadi...',['Rata tengah','Rata kanan','Rata kiri'],0],['Fitur pengatur jarak tepi kertas?',['Margins','Columns','Breaks'],0]],
+ [['Daftar bernomor otomatis memakai...',['Bullets','Numbering','Borders'],1],['Header dan Footer ada di tab...',['Insert','Layout','View'],0],['Find & Replace dibuka dengan...',['Ctrl+H','Ctrl+K','Ctrl+G'],0]]]},
+{n:'Benar atau Salah',ic:'✔️',d:'Tentukan pernyataan benar atau salah.',t:'tf',L:[
+ [['Word dapat dipakai untuk membuat surat.',1],['Ctrl+S untuk menyimpan dokumen.',1],['Ekstensi dokumen Word adalah .xlsx.',0]],
+ [['Ctrl+Z membatalkan tindakan terakhir.',1],['Landscape berarti halaman tegak.',0],['Tab Review memuat Spelling & Grammar.',1]],
+ [['Justify membuat teks rata kiri dan kanan.',1],['Ctrl+P untuk membuka dokumen.',0],['Tabel disisipkan lewat tab Insert.',1],['Margin Normal Word adalah 2,54 cm.',1]]]},
+{n:'Jodohkan',ic:'🔗',d:'Pasangkan istilah dengan artinya.',t:'match',L:[
+ [['Ctrl+C','Menyalin'],['Ctrl+X','Memotong'],['Ctrl+V','Menempel']],
+ [['Ctrl+B','Tebal'],['Ctrl+I','Miring'],['Ctrl+U','Garis bawah'],['Ctrl+S','Menyimpan']],
+ [['Insert','Tabel & gambar'],['Layout','Margin & orientasi'],['Review','Cek ejaan'],['Home','Format font'],['View','Tampilan dokumen']]]},
+{n:'Susun Kata',ic:'🔤',d:'Susun huruf menjadi istilah yang benar.',t:'scr',L:[
+ [['SIMPAN','Perintah menyimpan file'],['TABEL','Terdiri dari baris dan kolom'],['FONT','Jenis huruf']],
+ [['MARGIN','Jarak tepi kertas'],['HEADER','Kepala halaman'],['PARAGRAF','Kumpulan kalimat']],
+ [['ORIENTASI','Portrait atau Landscape'],['SPELLING','Pemeriksa ejaan'],['CLIPBOARD','Penyimpanan sementara salinan']]]}
+];
+const prog=[1,1,1,1];let kz={};
+$('glist').innerHTML=G.map((g,i)=>`<button class="btn py-6 text-left" data-g="${i}"><span class="text-3xl">${g.ic}</span> ${g.n}<br><span class="text-sm font-normal">${g.d}</span></button>`).join('');
+$('glist').onclick=e=>{const b=e.target.closest('[data-g]');if(b)levels(+b.dataset.g)};
+function levels(g){
+  $('klv').innerHTML=`<h2 class="text-3xl font-black text-blue-800 mb-1">${G[g].ic} ${G[g].n}</h2><p class="mb-4">Selesaikan level dengan nilai minimal 60% untuk membuka level berikutnya.</p><div class="grid grid-cols-3 gap-3">${G[g].L.map((_,l)=>`<button class="btn py-6 text-xl" data-l="${l}" ${l>=prog[g]?'disabled':''}>${l<prog[g]?'Level '+(l+1):'🔒 Level '+(l+1)}</button>`).join('')}</div><button class="btn alt mt-5" data-go="kuis">← Pilih Permainan</button>`;
+  $('klv').onclick=e=>{const b=e.target.closest('[data-l]');if(b)play(g,+b.dataset.l)};show('klv');
+}
+function play(g,l){kz={g,l,i:0,ok:0,mis:0,lock:false};const t=G[g].t;t==='match'?kMatch():kStep()}
+function head(){const G0=G[kz.g],d=G0.L[kz.l],tot=G0.t==='match'?d.length:d.length;return `<div class="flex justify-between text-sm font-bold text-blue-800 mb-1"><span>${G0.n} · Level ${kz.l+1}</span><span>Benar: ${kz.ok}</span></div><div class="bar mb-4"><i style="width:${kz.i/tot*100}%"></i></div>`}
+function kStep(){
+  const g=G[kz.g],d=g.L[kz.l];if(kz.i>=d.length)return kEnd(d.length);
+  const it=d[kz.i];kz.lock=false;let b='';
+  if(g.t==='mcq')b=`<p class="text-lg font-bold mb-3">${it[0]}</p><div class="grid gap-3">${it[1].map((x,j)=>`<button class="btn alt" data-k="${j}">${x}</button>`).join('')}</div>`;
+  if(g.t==='tf')b=`<p class="text-lg font-bold mb-3">${it[0]}</p><div class="grid grid-cols-2 gap-3"><button class="btn alt" data-k="1">✔ BENAR</button><button class="btn alt" data-k="0">✘ SALAH</button></div>`;
+  if(g.t==='scr'){kz.pick='';kz.sh=shuf(it[0].split(''));b=`<p class="mb-2">Petunjuk: <b>${it[1]}</b></p><p id="ans" class="text-3xl font-black text-blue-700 tracking-widest my-3" style="min-height:2.5rem"></p><div class="flex flex-wrap gap-2">${kz.sh.map((c,j)=>`<button class="btn alt" data-c="${j}" style="min-width:3rem">${c}</button>`).join('')}</div><button class="btn mt-4" data-reset>Ulangi huruf</button>`}
+  $('kgame').innerHTML=`<div class="card">${head()}${b}<p id="kfb" class="mt-3 font-bold"></p></div>`;show('kgame');
+}
+function kRes(ok,btn){
+  if(kz.lock)return;kz.lock=true;if(ok)kz.ok++;sfx(ok?'ok':'no');btn&&btn.classList.add(ok?'ok':'no');
+  $('kfb').textContent=ok?'✅ Benar!':'❌ Belum tepat';$('kfb').style.color=ok?'#16a34a':'#dc2626';
+  setTimeout(()=>{kz.i++;kStep()},900);
+}
+function kMatch(){
+  const d=G[kz.g].L[kz.l];kz.done=0;kz.sel=null;
+  const R=shuf(d.map((_,i)=>i));
+  $('kgame').innerHTML=`<div class="card">${head()}<p class="mb-3">Ketuk istilah di kiri, lalu pasangannya di kanan.</p><div class="grid grid-cols-2 gap-3"><div class="grid gap-3">${d.map((p,i)=>`<button class="btn alt" data-ml="${i}">${p[0]}</button>`).join('')}</div><div class="grid gap-3">${R.map(i=>`<button class="btn alt" data-mr="${i}">${d[i][1]}</button>`).join('')}</div></div></div>`;show('kgame');
+}
+$('kgame').addEventListener('click',e=>{
+  const g=G[kz.g];if(!g)return;let b;
+  if((b=e.target.closest('[data-k]'))){const it=g.L[kz.l][kz.i],j=+b.dataset.k;kRes(g.t==='mcq'?j===it[2]:j===it[1],b)}
+  else if((b=e.target.closest('[data-c]'))){if(kz.lock)return;const w=g.L[kz.l][kz.i][0];kz.pick+=kz.sh[+b.dataset.c];b.disabled=true;$('ans').textContent=kz.pick;if(kz.pick.length===w.length)kRes(kz.pick===w,null)}
+  else if(e.target.closest('[data-reset]')){if(kz.lock)return;kz.pick='';$('ans').textContent='';document.querySelectorAll('[data-c]').forEach(x=>x.disabled=false)}
+  else if((b=e.target.closest('[data-ml]'))){document.querySelectorAll('[data-ml]').forEach(x=>x.classList.remove('sel'));if(b.disabled)return;kz.sel=b;b.classList.add('sel')}
+  else if((b=e.target.closest('[data-mr]'))){
+    if(!kz.sel||b.disabled)return;
+    if(kz.sel.dataset.ml===b.dataset.mr){sfx('ok');kz.sel.className='btn ok';b.className='btn ok';kz.sel.disabled=b.disabled=true;kz.sel=null;kz.done++;kz.i=kz.done;
+      if(kz.done===G[kz.g].L[kz.l].length){const n=kz.done;kz.ok=Math.max(0,n-kz.mis);setTimeout(()=>kEnd(n),700)}}
+    else{kz.mis++;sfx('no');b.classList.add('no');setTimeout(()=>b.classList.remove('no'),500)}
+  }
+});
+function kEnd(n){
+  const pct=kz.ok/n,pass=pct>=.6,st=pct>=.99?3:pct>=.6?2:pct>0?1:0;
+  if(pass&&kz.l+1===prog[kz.g]&&kz.l+1<G[kz.g].L.length)prog[kz.g]++;
+  sfx(pass?'win':'no');
+  const nxt=pass&&kz.l+1<G[kz.g].L.length;
+  $('kgame').innerHTML=`<div class="card text-center"><div class="text-5xl">${'⭐'.repeat(st)||'💪'}</div><h3 class="text-2xl font-black text-blue-800 mt-2">${pass?'Level selesai!':'Coba lagi, ya!'}</h3><p class="mt-1">Skor: ${kz.ok} dari ${n}</p><div class="flex flex-wrap gap-3 justify-center mt-4"><button class="btn alt" data-again>Ulangi</button>${nxt?'<button class="btn" data-next>Level Berikutnya</button>':''}<button class="btn alt" data-lv>Daftar Level</button></div></div>`;
+  $('kgame').querySelector('[data-again]').onclick=()=>play(kz.g,kz.l);
+  const nb=$('kgame').querySelector('[data-next]');if(nb)nb.onclick=()=>play(kz.g,kz.l+1);
+  $('kgame').querySelector('[data-lv]').onclick=()=>levels(kz.g);
+}
+</script>
+</body>
+</html>
